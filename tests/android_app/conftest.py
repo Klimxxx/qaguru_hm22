@@ -1,53 +1,38 @@
-import allure
-import pytest
-import allure_commons
-from appium.options.android import UiAutomator2Options
-from selene import browser, support
 import os
 
-import config
-from selene_in_action import utils
+import pytest
+import allure
+import allure_commons
 
 from appium import webdriver
+from selene import browser, support
+
+from config import remote_url, driver_options, config
+from android_wikipedia_tests.utils import attach
 
 
 @pytest.fixture(scope='function', autouse=True)
 def mobile_management():
-    options = UiAutomator2Options().load_capabilities({
-        'deviceName': 'Pixel3_and11',
-        "appWaitActivity": "org.wikipedia.*",
-
-        # Set URL of the application under test
-        'app': '/Users/klim/Documents/GitHub/qaguru_hm22/app-alpha-universal-release.apk',
-
-    })
-    with allure.step('init app session'):
+    with allure.step('Init app session'):
         browser.config.driver = webdriver.Remote(
-            'http://127.0.0.1:4723/wd/hub',
-            options=options
-        )
+            remote_url,
+            options=driver_options())
 
-    browser.config.timeout = float(os.getenv('timeout', '10.0'))
+    browser.config.timeout = config.timeout
 
     browser.config._wait_decorator = support._logging.wait_with(
         context=allure_commons._allure.StepContext
     )
 
-    yield
+    yield browser
 
-    allure.attach(
-        browser.driver.get_screenshot_as_png(),
-        name='screenshot',
-        attachment_type=allure.attachment_type.PNG,
-    )
+    attach.add_screenshot(browser)
+    attach.add_xml(browser)
 
-    allure.attach(
-        browser.driver.page_source,
-        name='screen xml dump',
-        attachment_type=allure.attachment_type.XML,
-    )
+    session_id = browser.driver.session_id
 
-    #session_id = browser.driver.session_id
+    with allure.step('Tear down app session'):
+        browser.quit()
 
-    #with allure.step('tear down app session with id: ' + session_id):
-    browser.quit()
+    if config.context == 'bstack':
+        attach.attach_bstack_video(session_id, os.getenv('USER_NAME'), os.getenv('ACCESS_KEY'))

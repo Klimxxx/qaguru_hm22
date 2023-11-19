@@ -1,9 +1,9 @@
 def abs_path_from_project(relative_path: str):
-    import selene_in_action
+    import android_wikipedia_tests
     from pathlib import Path
 
     return (
-        Path(selene_in_action.__file__)
+        Path(android_wikipedia_tests.__file__)
         .parent.parent.joinpath(relative_path)
         .absolute()
         .__str__()

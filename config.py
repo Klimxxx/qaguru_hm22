@@ -1,47 +1,57 @@
 import os
 
-from selene_in_action import utils
-
-context = os.getenv('context', 'bstack')
-# run_on_bstack = os.getenv('run_on_bstack', 'false').lower() == 'true'
-remote_url = os.getenv('remote_url', 'http://127.0.0.1:4723/')
-deviceName = os.getenv('deviceName')
-appWaitActivity = os.getenv('appWaitActivity', 'org.wikipedia.*')
-app = os.getenv('app', './app-alpha-universal-release.apk')
-runs_on_bstack = app.startswith('bs://')
-if runs_on_bstack:
-    remote_url = 'http://hub.browserstack.com/wd/hub'
-bstack_userName = os.getenv('bstack_userName', 'klimtrotsenko_1BDcI7')
-bstack_accessKey = os.getenv('bstack_accessKey', 'EapEPAVMSY1gQZ4Zc3E1')
+import pydantic_settings
+from appium.options.android import UiAutomator2Options
+from dotenv import load_dotenv
 
 
-def to_driver_options():
-    from appium.options.android import UiAutomator2Options
-    options = UiAutomator2Options()
+class Config(pydantic_settings.BaseSettings):
+    context: str = 'bstack'
+    timeout: float = 10.0
 
-    if deviceName:
-        options.set_capability('deviceName', deviceName)
 
-    if appWaitActivity:
-        options.set_capability('appWaitActivity', appWaitActivity)
+config = Config()
 
-    options.set_capability('app', (
-        app if (app.startswith('/') or runs_on_bstack)
-        else utils.file.abs_path_from_project(app)
-    ))
+if config.context == 'bstack':
+    load_dotenv()
+    load_dotenv('.env.bstack')
+elif config.context == 'local_real':
+    load_dotenv('.env.local_real')
+else:
+    load_dotenv('.env.local_emulator')
 
-    if runs_on_bstack:
+remote_url = os.getenv('REMOTE_URL')
+udid = os.getenv('UDID')
+device_name = os.getenv('DEVICE_NAME')
+
+apk_path = os.getenv('APP_ID') if config.context == 'bstack' \
+    else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'apk', os.getenv('APP_ID'))
+
+
+def driver_options():
+    options = UiAutomator2Options().load_capabilities({
+        'platformName': 'Android',
+        'app': apk_path,
+        'appWaitActivity': 'org.wikipedia.*',
+
+    })
+
+    if udid:
+        options.set_capability('udid', os.getenv('UDID'))
+
+    if device_name:
+        options.set_capability('deviceName', os.getenv('DEVICE_NAME'))
+
+    if config.context == 'bstack':
         options.set_capability('platformVersion', '9.0')
         options.set_capability(
-            'bstack:options', {
-                'projectName': 'First Python project',
-                'buildName': 'browserstack-build-1',
-                'sessionName': 'BStack first_test',
-
-                'userName': bstack_userName,
-                'accessKey': bstack_accessKey,
+            "bstack:options", {
+                "userName": os.getenv('USER_NAME'),
+                "accessKey": os.getenv('ACCESS_KEY'),
+                "projectName": "First Python project",
+                "buildName": "browserstack-build-1",
+                "sessionName": "BStack first_test"
             },
         )
 
     return options
-
