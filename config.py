@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 class Config(pydantic_settings.BaseSettings):
     context: str = 'bstack'
+    #context: str = 'local_emulator'
+
     timeout: float = 10.0
 
 
@@ -24,8 +26,15 @@ remote_url = os.getenv('REMOTE_URL')
 udid = os.getenv('UDID')
 device_name = os.getenv('DEVICE_NAME')
 
-apk_path = os.getenv('APP_ID') if config.context == 'bstack' \
-    else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'apk', os.getenv('APP_ID'))
+# apk_path = os.getenv('APP_ID') if config.context == 'bstack' \
+#     else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'apk', os.getenv('APP_ID'))
+
+#/Users/klim/Documents/GitHub/qaguru_hm22/resources/apk/app-alpha-universal-release.apk
+if config.context == 'bsstack':
+    apk_path = os.getenv('APP_ID')
+else:
+    apk_path = '/Users/klim/Documents/GitHub/qaguru_hm22/resources/apk/app-alpha-universal-release.apk'
+
 
 
 def driver_options():
