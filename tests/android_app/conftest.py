@@ -7,7 +7,7 @@ import allure_commons
 from appium import webdriver
 from selene import browser, support
 
-from config import remote_url, driver_options, config
+from config import driver_options, config
 from android_wikipedia_tests.utils import attach
 
 
@@ -15,14 +15,14 @@ from android_wikipedia_tests.utils import attach
 def mobile_management():
     with allure.step('Init app session'):
         browser.config.driver = webdriver.Remote(
-            remote_url,
+            config.remote_url,
             options=driver_options())
 
     browser.config.timeout = config.timeout
 
-    browser.config._wait_decorator = support._logging.wait_with(
-        context=allure_commons._allure.StepContext
-    )
+    # browser.config._wait_decorator = support._logging.wait_with(
+    #     context=allure_commons._allure.StepContext
+    # )
 
     yield browser
 
