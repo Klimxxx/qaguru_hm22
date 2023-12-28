@@ -7,7 +7,7 @@ EnvContext = Literal['local_emulator', 'bstack', 'local_real']
 
 
 class Config(pydantic_settings.BaseSettings):
-    context: EnvContext = 'local_emulator'
+    context: EnvContext = 'bstack'
     timeout: float = 10.0
 
 config = Config()
