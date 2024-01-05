@@ -3,14 +3,11 @@ from allure_commons._allure import step
 from appium.webdriver.common.appiumby import AppiumBy
 from selene import browser, have, be
 
-from config import config
-
 
 @pytest.fixture(autouse=True, scope='function')
 def skip_hello_screen():
-    if config.context != 'bstack':
-        with step('Skip wellcome screen'):
-            browser.element((AppiumBy.ID, 'org.wikipedia.alpha:id/fragment_onboarding_skip_button')).click()
+    with step('Skip wellcome screen'):
+        browser.element((AppiumBy.ID, 'org.wikipedia.alpha:id/fragment_onboarding_skip_button')).click()
 
 
 def test_search():
@@ -33,6 +30,9 @@ def test_login_btn_on_saved():
 def test_login_btn_on_edits():
     with step('Click Edits in bottom menu'):
         browser.element((AppiumBy.ID, "org.wikipedia.alpha:id/nav_tab_edits")).click()
+        browser.element((AppiumBy.XPATH,
+                         '(//android.widget.ImageView[@resource-id="org.wikipedia.alpha:id/navigation_bar_item_icon_view"])[4]')).click()
+
     with step('Check button register on the page'):
         browser.element((AppiumBy.ID, "org.wikipedia.alpha:id/positiveButton")).should(be.clickable and be.visible)
 

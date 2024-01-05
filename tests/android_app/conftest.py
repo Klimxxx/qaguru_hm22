@@ -1,12 +1,12 @@
-import allure
 import os
 
+import allure
 import allure_commons
 import pytest
 from appium import webdriver
+from appium.options.android import UiAutomator2Options
 from dotenv import load_dotenv
 from selene import browser, support
-from appium.options.android import UiAutomator2Options
 
 from android_wikipedia_tests.utils import file, attach
 from config import config

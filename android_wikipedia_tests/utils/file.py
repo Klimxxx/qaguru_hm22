@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import android_wikipedia_tests
@@ -24,5 +23,3 @@ def env(file):
 def apk_app_alpha_universal_release():
     return str(project().joinpath(f"resources/apk/app-alpha-universal-release.apk"))
 
-
-#os.path.abspath()
